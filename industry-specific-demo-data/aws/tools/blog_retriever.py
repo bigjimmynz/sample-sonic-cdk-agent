@@ -146,7 +146,8 @@ def extract_content(soup):
         '.entry-body',
         '.article-body',
         'main',
-        '.main-content'
+        '.main-content',
+        'articleBody'
     ]
     
     content = ""

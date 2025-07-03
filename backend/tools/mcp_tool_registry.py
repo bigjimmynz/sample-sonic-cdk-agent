@@ -20,6 +20,10 @@ from mcp_server import mcp_server
 import logging
 from . import knowledge_base_lookup
 from . import retrieve_user_profile
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../industry-specific-demo-data/aws/tools'))
+import whats_new_rss_reader
 
 logger = logging.getLogger(__name__)
 
@@ -56,4 +60,21 @@ async def user_profile_search_tool(
         return results  
     except Exception as e:
         logger.error(f"Error in user profile search: {str(e)}", exc_info=True)
+        return {"status": "error", "error": str(e)}
+
+# AWS What's New RSS Reader Tool
+@mcp_server.tool(
+    name="getWhatsNewEntries",
+    description="Retrieve recent AWS What's New announcements from the RSS feed"
+)
+async def whats_new_rss_reader_tool(
+    days: Annotated[int, Field(description="Number of days back to retrieve entries (default: 7)", default=7)]
+) -> dict:
+    """Retrieve AWS What's New RSS feed entries"""
+    try:
+        logger.info(f"Fetching AWS What's New entries for last {days} days")
+        results = whats_new_rss_reader.get_rss_entries(days)
+        return results  
+    except Exception as e:
+        logger.error(f"Error in AWS What's New RSS reader: {str(e)}", exc_info=True)
         return {"status": "error", "error": str(e)}
