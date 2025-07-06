@@ -12,7 +12,7 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 #
-
+import sys
 import feedparser
 import logging
 import argparse
@@ -87,7 +87,7 @@ def main(days=7):
             print(f"Title: {entry['title']}")
             print(f"Link: {entry['link']}")
             print(f"Published: {entry['published']}")
-            print("-" * 50)
+            print(" " * 50)
     else:
         print(f"Error: {result['message']}")
     
@@ -98,5 +98,6 @@ if __name__ == "__main__":
     parser.add_argument('--days', type=int, default=7, help='Number of days back to show entries (default: 7)')
     args = parser.parse_args()
     
-    result = main(args.days)
-    exit(0 if result["status"] == "success" else 1)
+    # result = main(args.days)
+    sys.exit(main(args.days))
+    # exit(0 if result["status"] == "success" else 1)
