@@ -76,7 +76,7 @@ async def whats_new_rss_reader_tool(
     """Retrieve AWS What's New RSS feed entries"""
     try:
         logger.info(f"Fetching AWS What's New entries for last {days} days")
-        results = whats_new_rss_reader.main(days)
+        results = whats_new_rss_reader.get_rss_entries(days)
         return results  
     except Exception as e:
         logger.error(f"Error in AWS What's New RSS reader: {str(e)}", exc_info=True)

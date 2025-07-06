@@ -61,14 +61,13 @@ def get_rss_entries(days=7):
                     "published": entry.published
                 })
         
-        return {
-            "status": "success",
-            "entries": entries
-        }
-        
+        return entries
+
     except Exception as e:
-        logger.error(f"RSS feed error: {e}")
-        return systemError
+        logger.exception(f"RSS feed error: {str(e)}")
+        error = {"error": f"Unexpected error: {str(e)}"}
+        print(json.dumps(error, indent=2))
+        return 1
 
 def main(days=7):
     """
