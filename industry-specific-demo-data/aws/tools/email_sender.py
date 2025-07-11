@@ -51,6 +51,7 @@ def send_email(recipient, subject, content, sender_email=None, aws_region=None):
     try:
         # Get configuration from environment variables if not provided
         sender_email = sender_email or os.getenv('SENDER_EMAIL')
+        recipient = recipient or os.getenv('RECIPIENT_EMAIL')
         aws_region = aws_region or os.getenv('AWS_REGION', 'us-east-1')
         
         if not sender_email:
@@ -59,7 +60,8 @@ def send_email(recipient, subject, content, sender_email=None, aws_region=None):
         logger.info(f"Sending email via AWS SES to: {recipient}")
         
         # Create SES client
-        ses_client = boto3.client('ses', region_name=aws_region)
+        # session = boto3.Session(profile_name='ctdevlab')
+        ses_client = boto3.client('ses', region_name=aws_region, )
         
         # Add timestamp to content
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -132,6 +134,7 @@ This email was generated automatically on {timestamp} via AWS SES.
     except Exception as e:
         logger.error(f"Email sending error: {e}")
         return systemError
+
 def send_email_html(recipient, subject, html_content, text_content=None, sender_email=None, aws_region=None):
     """
     Send an HTML email using AWS SES with the provided content to a recipient.
@@ -314,8 +317,8 @@ def main(recipient, content, subject=None, html=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Send email with content to a recipient using AWS SES')
-    parser.add_argument('recipient', help='Email address of the recipient')
-    parser.add_argument('content', help='Email content to send')
+    parser.add_argument('--recipient', help='Email address of the recipient')
+    parser.add_argument('--content', help='Email content to send')
     parser.add_argument('--subject', help='Email subject line (optional)')
     parser.add_argument('--html', action='store_true', help='Send as HTML email')
     args = parser.parse_args()

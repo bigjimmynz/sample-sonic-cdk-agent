@@ -147,7 +147,8 @@ def extract_content(soup):
         '.article-body',
         'main',
         '.main-content',
-        'articleBody'
+        'articleBody',
+        'wn-body'
     ]
     
     content = ""
@@ -187,7 +188,7 @@ def get_blog_post(url):
     """
     try:
         logger.info(f"Retrieving blog post from: {url}")
-        
+        result = {}
         # Validate URL
         parsed_url = urlparse(url)
         if not parsed_url.scheme or not parsed_url.netloc:
@@ -204,26 +205,39 @@ def get_blog_post(url):
         
         # Make the request
         response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
-        
-        # Parse the HTML
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        # Extract metadata and content
-        metadata = extract_metadata(soup, url)
-        content = extract_content(soup)
-        
-        if not content:
-            raise Exception("No content could be extracted from the page")
-        
-        return {
-            "status": "success",
-            "url": url,
-            "metadata": metadata,
-            "content": content,
-            "content_length": len(content),
-            "retrieved_at": datetime.now().isoformat()
-        }
+        # Check for HTTP 200 status
+        if response.status_code != 200:
+            raise requests.exceptions.HTTPError(f"HTTP {response.status_code}: {response.reason}")
+            # result.status = "failed"
+            # result.message = f"HTTP {response.status_code}: {response.reason}"
+            return {
+                "status": "failed",
+                "url": url,
+                # "metadata": metadata,
+                "message": f"HTTP {response.status_code}: {response.reason}",
+                "retrieved_at": datetime.now().isoformat()
+            }
+        else:
+            response.raise_for_status()
+
+            # Parse the HTML
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Extract metadata and content
+            metadata = extract_metadata(soup, url)
+            content = extract_content(soup)
+            print(metadata)
+
+            if not content:
+                raise Exception("No content could be extracted from the page")
+            
+            return {
+                "status": "success",
+                "url": url,
+                "metadata": metadata,
+                "message": content,
+                "retrieved_at": datetime.now().isoformat()
+            }
         
     except requests.exceptions.RequestException as e:
         logger.error(f"Request error for {url}: {e}")
@@ -252,15 +266,11 @@ def main(url):
     result = get_blog_post(url)
     
     if result["status"] == "success":
-        print(f"Title: {result['metadata']['title']}")
-        print(f"Author: {result['metadata']['author']}")
-        print(f"Published: {result['metadata']['published_date']}")
         print(f"URL: {result['url']}")
-        print(f"Content Length: {result['content_length']} characters")
         print(f"Tags: {', '.join(result['metadata']['tags'])}")
-        print("-" * 50)
+        print(" " * 50)
         print("Content Preview:")
-        print(result['content'][:500] + "..." if len(result['content']) > 500 else result['content'])
+        print(result['message'])
     else:
         print(f"Error: {result['message']}")
     

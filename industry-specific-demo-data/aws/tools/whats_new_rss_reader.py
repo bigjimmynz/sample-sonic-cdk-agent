@@ -50,24 +50,36 @@ def get_rss_entries(days=7):
             raise Exception("Invalid RSS feed")
         
         cutoff_date = datetime.now() - timedelta(days=days)
+        # entries = {}
         entries = []
+        entry_count = 0
         
         for entry in feed.entries:
             entry_date = datetime(*entry.published_parsed[:6])
             if entry_date >= cutoff_date:
-                entries.append({
+                # entries[f"entry_{entry_count}"] = 
+                object = {
                     "title": entry.title,
                     "link": entry.link,
                     "published": entry.published
-                })
+                }
+                entry_count += 1
+                # entries = entries + "\n" + lines
+                entries.append(object)
         
-        return entries
-
+        response = {
+            "status": "success",
+            "entries": entries
+        }
+        
+        return response
+        
     except Exception as e:
         logger.exception(f"RSS feed error: {str(e)}")
         error = {"error": f"Unexpected error: {str(e)}"}
         print(json.dumps(error, indent=2))
-        return 1
+        response = {"status": "error", "message": f"RSS feed error: {str(e)}"}
+        return response
 
 def main(days=7):
     """
@@ -81,16 +93,20 @@ def main(days=7):
     """
     result = get_rss_entries(days)
     
-    if result["status"] == "success":
-        for entry in result["entries"]:
-            print(f"Title: {entry['title']}")
-            print(f"Link: {entry['link']}")
-            print(f"Published: {entry['published']}")
-            print(" " * 50)
+    if result:
+        logger.info(f"Found entries from the last {days} days:")
+        logger.info(f"entries: {result}")
+        # for entry_key, entry in result.items():
+        #     print(f"Title: {entry['title']}")
+        #     print(f"Link: {entry['link']}")
+        #     print(f"Published: {entry['published']}")
+        #     print(" " * 50)
+        return result
     else:
         print(f"Error: {result['message']}")
+        return result['message']
     
-    return result
+    # return result
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

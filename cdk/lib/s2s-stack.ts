@@ -125,8 +125,17 @@ export class S2SAppStack extends cdk.Stack {
       ],
     });
 
+    const sesPolicy = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ["ses:SendEmail"],
+      resources: [
+        `arn:aws:ses:${this.region}:${this.account}:identity/*`,
+      ],
+    });
+
     taskRole.addToPolicy(dynamoDbReadPolicy);
     taskRole.addToPolicy(bedrockKnowledgeBasePolicy);
+    taskRole.addToPolicy(sesPolicy);
 
     taskRole.addToPolicy(
       new iam.PolicyStatement({
