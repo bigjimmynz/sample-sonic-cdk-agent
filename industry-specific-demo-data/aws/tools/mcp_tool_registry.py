@@ -107,6 +107,7 @@ async def blog_retriever_tool(
 async def email_sender_tool(
     recipient: Annotated[str, Field(description="Email address of the recipient")],
     content: Annotated[str, Field(description="Email content to send")],
+    url: Annotated[str, Field(description="URL to include in the email", default="")] = "",
     subject: Annotated[str, Field(description="Email subject line", default="")] = "",
     format_html: Annotated[bool, Field(description="Whether to format as HTML email", default=False)] = False
 ) -> dict:
@@ -117,13 +118,13 @@ async def email_sender_tool(
             results = email_sender.main(
                 recipient, 
                 subject or f"Automated Report - {datetime.now().strftime('%Y-%m-%d %H:%M')}", 
-                content
+                url + "\n" + content
             )
         else:
             results = email_sender.send_email(
                 recipient, 
                 subject or f"Automated Report - {datetime.now().strftime('%Y-%m-%d %H:%M')}", 
-                content
+                url + "\n" + content
             )
         return results  
     except Exception as e:

@@ -235,7 +235,7 @@ def get_blog_post(url):
                 "status": "success",
                 "url": url,
                 "metadata": metadata,
-                "message": content,
+                "message": url + "\n\n" + content,
                 "retrieved_at": datetime.now().isoformat()
             }
         
